@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي التشفير الرقمي للأحرف</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #e0e7ff;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --bg: #f3f4f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--dark);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        /* قسم الشرح السلس */
+        .intro-card {
+            background: var(--primary-light);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-right: 5px solid var(--primary);
+        }
+
+        .intro-card h3 {
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .btn-start {
+            display: block;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+
+        .btn-start:hover {
+            background: #4338ca;
+        }
+
+        /* قسم الأسئلة والتحدي */
+        .hidden {
+            display: none !important;
+        }
+
+        .header-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #fafafa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .timer-box {
+            font-size: 18px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timer-urgent {
+            color: var(--danger);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .btn-pause {
+            background: #9ca3af;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .progress-bar-container {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background: var(--primary);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* تصميم جدول ASCII التفاعلي المدمج */
+        .ascii-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .ascii-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: center;
+            min-width: 600px;
+        }
+
+        .ascii-table th {
+            background: #4f46e5;
+            color: white;
+            padding: 8px;
+            font-weight: 600;
+        }
+
+        .ascii-table th.side-head {
+            background: #6b7280;
+        }
+
+        .ascii-table td {
+            border: 1px solid #e5e7eb;
+            padding: 6px;
+            font-weight: bold;
+        }
+
+        .ascii-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .ascii-table .highlight-col {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .ascii-table .highlight-row {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .ascii-table .caption-text {
+            background: #f3f4f6;
+            font-size: 11px;
+            font-weight: normal;
+            color: #6b7280;
+            padding: 4px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #e5e7eb;
+            padding: 12px 15px;
+            border-radius: 8px;
+            text-align: right;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: #fafafa;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .correct {
+            background: #d1fae5 !important;
+            border-color: var(--success) !important;
+            color: #065f46;
+            font-weight: bold;
+        }
+
+        .wrong {
+            background: #fee2e2 !important;
+            border-color: var(--danger) !important;
+            color: #991b1b;
+            font-weight: bold;
+        }
+
+        .feedback-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            display: none;
+            line-height: 1.6;
+        }
+
+        .feedback-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid var(--success);
+        }
+
+        .feedback-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid var(--danger);
+        }
+
+        .btn-next {
+            background: var(--dark);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            float: left;
+            font-weight: bold;
+        }
+
+        /* شاشة التوقف المؤقت */
+        .pause-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 1000;
+        }
+
+        .pause-overlay h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #fbfbfb;
+        }
+
+        .btn-resume {
+            background: var(--success);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* شاشة النهاية */
+        .score-view {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .badge {
+            font-size: 60px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .score-num {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container" id="app">
+        <!-- صفحة الشرح السلس عند البداية -->
+        <div id="intro-screen">
+            <h1>📊 كشف أسرار لغة الحاسوب (ASCII & Unicode)</h1>
+            <div class="intro-card">
+                <h3>🤖 1. كيف يفهمنا الحاسوب؟</h3>
+                <p>الكمبيوتر جهاز إلكتروني مبني بالكامل على الكهرباء، فهو لا يفهم الكلمات أو الحروف بل يترجم كل شيء إلى
+                    لغة ثنائية تتكون من (0 و 1) فقط، حيث يعني (1) وجود نبضة كهربائية و(0) انعدامها.</p>
+            </div>
+            <div class="intro-card">
+                <h3>🔤 2. المترجم السحري (ASCII)</h3>
+                <p>لكي نتمكن من كتابة الحروف الإنجليزية والرموز، اخترع العلماء نظام <strong>ASCII</strong>. وهو عبارة عن
+                    جدول يعطي لكل حرف رمزاً رقمياً فريداً (مثلاً حرف A الكبير يساوي الرقم 65 بالعشري و41 بالسداسي عشر
+                    Hex) ليفهمه المعالج فوراً.</p>
+            </div>
+            <div class="intro-card">
+                <h3>🌍 3. التطوير العالمي (Unicode)</h3>
+                <p>لأن نظام ASCII كان ضيقاً ويتسع لـ 256 رمزاً فقط للحروف الإنجليزية، ظهر نظام <strong>Unicode</strong>
+                    المتطور الذي يستهلك مساحة أكبر (بايتات أكثر) ليستوعب لغات العالم بأكملها كالعربية، الصينية، وحتى
+                    الرموز التعبيرية (Emojis) 🤩.</p>
+            </div>
+            <button class="btn-start" onclick="startQuiz()">🎮 ابدأ التحدي التنافسي الآن</button>
+        </div>
+
+        <!-- صفحة الأسئلة والتحدي الفعلي -->
+        <div id="quiz-screen" class="hidden">
+            <div class="header-status">
+                <span id="question-number">السؤال: 1 / 10</span>
+                <div class="timer-box">
+                    <span id="timer-display">الوقت: 02:00</span>
+                    <button class="btn-pause" onclick="togglePause()">⏸️ إيقاف</button>
+                </div>
+            </div>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+
+
+            <!-- عرض صورة الجدول الحقيقية مباشرة للطلاب فوق كل سؤال -->
+            <div style="width: 100%; text-align: center; margin-bottom: 25px;">
+                <img src="photo.jpg" alt="جدول ASCII المدرسي"
+                    style="max-width: 100%; height: auto; border: 2px solid #c94a81; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+            </div>
+
+            <!-- نهاية كود الجدول -->
+
+
+            <div class="question-text" id="question-container">نص السؤال هنا؟</div>
+
+            <div class="options-grid" id="options-container">
+                <!-- ستولد الخيارات تلقائياً بواسطة الجافاسكريبت -->
+            </div>
+
+            <div class="feedback-box" id="feedback-container">التغذية الراجعة والشرح البسيط يظهر هنا فور الاختيار</div>
+
+            <button class="btn-next hidden" id="next-btn" onclick="nextQuestion()">السؤال التالي ➡️</button>
+        </div>
+
+        <div id="pause-screen" class="pause-overlay hidden">
+            <h2>⏸️ اللعبة متوقفة مؤقتاً</h2>
+            <p style="margin-bottom:20px; color:#ccc;">تحدي التفكير والسرعة متوقف الآن، خذ نَفساً عميقاً!</p>
+            <button class="btn-resume" onclick="togglePause()">▶️ استئناف التحدي</button>
+        </div>
+
+        <div id="score-screen" class="hidden score-view">
+            <span class="badge" id="end-badge">👑</span>
+            <h2 id="end-title">مذهل، أنت بطل التشفير!</h2>
+            <p class="score-num" id="end-score">درجتك: 10 / 10</p>
+            <p id="end-comment" style="color:#555; line-height:1.5;">تعليق تشجيعي مخصص للطالب بناء على أدائه المميز في
+                الدرس.</p>
+            <button class="btn-start" onclick="restartQuiz()"
+                style="width:auto; margin: 20px auto 0; padding:12px 30px;">🔄 إعادة التحدي من جديد</button>
+        </div>
+    </div>
+
+    <script>
+        // بنك الأسئلة المكون من 10 أسئلة متكاملة للدرس مع التغذية الراجعة التفصيلية والتصحيح اللطيف
+        const quizData = [
+            {
+                q: "ما هو الهدف الأساسي من نظام الترميز ASCII في الحاسوب؟",
+                options: ["زيادة مساحة تخزين الملفات والمستندات.", "تحويل الأحرف والنصوص إلى أرقام وشفرات يفهمها المعالج.", "تسريع سرعة تصفح الإنترنت وشبكات الاتصال."],
+                correct: 1,
+                explain: "<b>إجابة صحيحة وممتازة!</b> الكمبيوتر يفهم النبضات الكهربائية فقط (0 و 1)، ونظام ASCII بمثابة القاموس المشترك لترجمة الأحرف إلى لغة رقمية.",
+                wrongExplain: "<b>عذراً، فكر مجدداً!</b> نظام ASCII لا يرتبط بحجم التخزين أو سرعة الشبكة، بل وظيفته الأساسية هي ترجمة الحروف البشرية إلى أرقام يفهمها معالج الآلة."
+            },
+            {
+                q: "بالاستعانة بالجدول المعروض، ما هي القيمة السداسية العشرية (Hex) للحرف الكبير الحجم (A)؟",
+                options: ["41", "51", "31"],
+                correct: 0,
+                explain: "<b>رائع ومبهر!</b> بالنظر إلى جدول التشفير، يقع حرف A الكبير في العمود رقم 4 والسطر الأفقي 1، وبالتالي يُكتب في نظام Hex بالرمز (41).",
+                wrongExplain: "<b>للأسف غير صحيح!</b> ابحث بدقة في خلايا الجدول الملونة بالأخضر عن الحرف الكبير A، وانظر لتقاطع العمود 4 والصف 1 لتكتشف أن الإجابة الصحيحة هي 41."
+            },
+            {
+                q: "إذا كانت شفرة الحرف A هي 41 بالـ Hex، فما هي شفرة الحرف الذي يليه مباشرة B في نظام ASCII؟",
+                options: ["41", "42", "52"],
+                correct: 1,
+                explain: "<b>دقة عالية وملاحظة قوية!</b> بما أن الحروف في القواميس الرقمية تترتب تسلسلياً وتتابعياً، فإن شفرة الحرف التالي تزيد بمقدار 1 مباشرة، وبذلك B يساوي 42.",
+                wrongExplain: "<b>ركز قليلاً!</b> الحروف الرقمية تترتب بترتيب أبجدي تصاعدي دقيق؛ فإذا بدأ الحرف A بقيمة 41، فالحرف التالي B سيزيد بمقدار خطوة واحدة ليصبح 42."
+            },
+            {
+                q: "كم عدد البِتات (Bits) التي يستهلكها نظام ASCII القياسي الأساسي (Standard ASCII) لتمثيل الحرف الواحد؟",
+                options: ["4 بت فقط.", "7 أو 8 بت (ما يعادل 1 بايت).", "16 بت بالكامل."],
+                correct: 1,
+                explain: "<b>صحيح تماماً!</b> يستهلك نظام ASCII القياسي مساحة 7 بت، والمطور يستغل 8 بت (أي بايت واحد كامل) لتمثيل وحفظ الرموز والحروف داخل الذاكرة.",
+                wrongExplain: "<b>إجابة غير دقيقة!</b> مساحة 16 بت كبيرة جداً ومخصصة للأنظمة العالمية، بينما يكتفي نظام ASCII بـ 7 أو 8 بت (1 بايت) لتمثيل مجموعته المحدودة من الحروف."
+            },
+            {
+                q: "لماذا تم ابتكار واعتماد نظام Unicode العالمي الجديد على الرغم من وجود نظام ASCII؟",
+                options: ["لأن معالجة نظام ASCII أصبحت بطيئة جداً.", "لأن ASCII محدود ولا يتسع للغات العالم الكبيرة كالعربية والصينية والأشكال التعبيرية.", "لتغيير وضبط ألوان الحروف وتنسيقها البصري."],
+                correct: 1,
+                explain: "<b>مبدع وذكي!</b> نظام ASCII يدعم 256 رمزاً فقط ومصمم للغة الإنجليزية، بينما جاء نظام Unicode بمساحة عملاقة ليدعم لغات الأرض كافة كالعربية والـ Emojis.",
+                wrongExplain: "<b>تفسير خاطئ!</b> السبب ليس السرعة أو الألوان، بل إن نظام ASCII ضيق جداً؛ لذا ابتكر العلماء Unicode ليتسع لآلاف الحروف من لغات مختلفة كالعربية."
+            },
+            {
+                q: "قم بفك شفرة الكلمة السرية التالية المكتوبة بالسداسي عشر (Hex): '43 41 54'؟",
+                options: ["DOG", "CAT", "CAR"],
+                correct: 1,
+                explain: "<b>عبقري التشفير الفائز!</b> بالرجوع المباشر للجدول ستجد أن: شفرة 43 هي حرف C، وشفرة 41 هي حرف A، وشفرة 54 هي حرف T، فتتكون كلمة CAT (قطة).",
+                wrongExplain: "<b>حاول مرة أخرى مستعيناً بالجدول!</b> طابق كل رمز على حدة: الرمز 43 يمثل الحرف C، والرمز 41 يمثل A، والرمز 54 يمثل T. اجمعها لتكتشف كلمة الحل الجذابة."
+            },
+            {
+                q: "هل يختلف تمثيل وتشفير الحرف الصغير (a) عن الحرف الكبير (A) في نظام ASCII؟",
+                options: ["نعم، لكل منهما شفرة رقمية مستقلة ومختلفة تماماً في الذاكرة.", "لا، الشفرة متطابقة والكمبيوتر يفهم حالتها بالذكاء الاصطناعي البصري.", "نعم، ولكن الحرف الصغير ليس له رقم ثابت بل يتغير تلقائياً."],
+                correct: 0,
+                explain: "<b>إجابة ممتازة وصائبة!</b> الكمبيوتر يتعامل بحرفية مطلقة؛ فحرف A الكبير يمثل الرمز 41 بالسداسي عشر، بينما حرف a الصغير يمثل الرقم 61.",
+                wrongExplain: "<b>انتبه جيداً!</b> الحاسوب لا يخمن حالة الحروف تلقائياً، بل خصص العلماء شفرة مستقلة وفريدة لكل حالة؛ فالكبير له رقم والصغير له رقم آخر تماماً."
+            },
+            {
+                q: "أي من أنظمة الترميز الرقمية التالية يمتلك القدرة الواسعة على تمثيل الحروف العربية والرموز التعبيرية (Emojis)؟",
+                options: ["نظام التشفير القياسي ASCII Standard.", "نظام التشفير العالمي الشامل Unicode.", "النظام العشري البسيط المجرّد."],
+                correct: 1,
+                explain: "<b>رائع جداً!</b> الرموز التعبيرية (Emojis) والحروف العربية تعتبر رموزاً حديثة وعالمية، ونظام Unicode هو المستودع الضخم والوحيد القادر على احتوائها.",
+                wrongExplain: "<b>تحقق من معلوماتك!</b> تذكر دائماً أن نظام ASCII قديم وضيق جداً ولا يدعم سوى الإنجليزية، والرموز الحديثة والأشكال العربية تتطلب سعة Unicode الكبيرة."
+            },
+            {
+                q: "ما هي الشفرة الثنائية (Binary) الممثلة للحرف A إذا علمت أن قيمته المقابلة في النظام العشري هي 65؟",
+                options: ["00000001", "01000001", "11111111"],
+                correct: 1,
+                explain: "<b>دقة مذهلة وذكاء رياضي!</b> الرقم 65 في النظام الثنائي يُكتب على شكل (01000001) من خلال تشغيل خانة البت ذات الوزن 64 وخانة البت ذات الوزن 1.",
+                wrongExplain: "<b>تحتاج لإعادة الحساب بلطف!</b> تذكر آلية النظام الثنائي؛ الرقم 65 ينتج عن تشغيل البت السادس (64) والبت الأول (1)، مما يعطي السلسلة الثنائية (01000001)."
+            },
+            {
+                q: "ماذا يحدث عند محاولة إرسال نص باللغة العربية إلى جهاز كمبيوتر قديم جداً لا يدعم سوى نظام ASCII؟",
+                options: ["يتم ترجمة الكلمات العربية والرسالة تلقائياً إلى لغة إنجليزية مفهومة.", "تظهر الحروف مشوهة وغير مفهومة على الإطلاق وتتحول إلى رموز غريبة وعلامات استفهام.", "تختفي الرسالة بالكامل من نظام الإرسال ولا تصل إلى الطرف الآخر."],
+                correct: 1,
+                explain: "<b>رائع، لقد ختمت التحدي بنجاح!</b> هذا ما نطلق عليه علمياً اسم 'تشوه النصوص' (Character corruption)، حيث يبحث النظام القديم عن الشفرة في جدول ASCII فلا يجدها ويعرض رموزاً مشوهة.",
+                wrongExplain: "<b>فكر في النتيجة المنطقية!</b> الرسالة ستصل بالفعل ولن تترجم سحرياً، لكن بما أن نظام ASCII لا يحتوي على حروف عربية، ستظهر الأحرف كرموز غريبة وعلامات استفهام غامضة."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeLeft = 120; // دقيقتان لكل سؤال
+        let timerInterval = null;
+        let isPaused = false;
+
+        function startQuiz() {
+            document.getElementById('intro-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            clearInterval(timerInterval);
+            timeLeft = 120;
+            isPaused = false;
+            document.getElementById('timer-display').innerText = "الوقت: 02:00";
+            document.getElementById('timer-display').classList.remove('timer-urgent');
+            document.getElementById('feedback-container').style.display = 'none';
+            document.getElementById('next-btn').classList.add('hidden');
+
+            document.getElementById('question-number').innerText = `السؤال: ${currentQuestionIndex + 1} / ${quizData.length}`;
+            const progressPercent = ((currentQuestionIndex) / quizData.length) * 100;
+            document.getElementById('progress').style.width = `${progressPercent}%`;
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            document.getElementById('question-container').innerText = currentQuestion.q;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.innerText = option;
+                button.onclick = () => selectOption(index);
+                optionsContainer.appendChild(button);
+            });
+
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (isPaused) return;
+
+                timeLeft--;
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+
+                document.getElementById('timer-display').innerText = `الوقت: ${minutes}:${seconds}`;
+
+                if (timeLeft <= 15) {
+                    document.getElementById('timer-display').classList.add('timer-urgent');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    disableOptions();
+                    showTimeoutFeedback();
+                }
+            }, 1000);
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            const pauseScreen = document.getElementById('pause-screen');
+            if (isPaused) {
+                pauseScreen.classList.remove('hidden');
+            } else {
+                pauseScreen.classList.add('hidden');
+            }
+        }
+
+        function selectOption(selectedIndex) {
+            clearInterval(timerInterval);
+            disableOptions();
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            const buttons = document.querySelectorAll('.option-btn');
+            const feedbackContainer = document.getElementById('feedback-container');
+
+            feedbackContainer.style.display = 'block';
+
+            if (selectedIndex === currentQuestion.correct) {
+                buttons[selectedIndex].classList.add('correct');
+                feedbackContainer.className = 'feedback-box feedback-success';
+                feedbackContainer.innerHTML = currentQuestion.explain;
+                score++;
+            } else {
+                buttons[selectedIndex].classList.add('wrong');
+                buttons[currentQuestion.correct].classList.add('correct');
+                feedbackContainer.className = 'feedback-box feedback-danger';
+                feedbackContainer.innerHTML = currentQuestion.wrongExplain;
+            }
+
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function showTimeoutFeedback() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            const buttons = document.querySelectorAll('.option-btn');
+            const feedbackContainer = document.getElementById('feedback-container');
+
+            buttons[currentQuestion.correct].classList.add('correct');
+            feedbackContainer.style.display = 'block';
+            feedbackContainer.className = 'feedback-box feedback-danger';
+            feedbackContainer.innerHTML = `⏳ <b>انتهى الوقت المخصص للسؤال!</b> الحل الصحيح معروض بالأخضر لتتعلمه ويترسخ في ذهنك قبل الانتقال للسؤال التالي.`;
+
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function disableOptions() {
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.disabled = true);
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showFinalScore();
+            }
+        }
+
+        function showFinalScore() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('score-screen').classList.remove('hidden');
+
+            document.getElementById('end-score').innerText = `درجتك النهائية الحالية هي: ${score} / ${quizData.length}`;
+
+            const badgeElement = document.getElementById('end-badge');
+            const titleElement = document.getElementById('end-title');
+            const commentElement = document.getElementById('end-comment');
+
+            if (score >= 9) {
+                badgeElement.innerText = "👑";
+                titleElement.innerText = "بطل التشفير الخبير العالمي!";
+                commentElement.innerText = "مذهل ورائع جداً! لقد أثبتّ جدارة خارقة وفهماً عميقاً لطريقة تمثيل البيانات الرقمية داخل ذاكرة الحاسوب، أنت جاهز لتصبح مهندس برمجيات واعد في المستقبل!";
+            } else if (score >= 6) {
+                badgeElement.innerText = "💻";
+                titleElement.innerText = "مبرمج طموح ومهندس ذكي!";
+                commentElement.innerText = "أداء طيب ومميز للغاية! لديك معرفة قوية جداً بأسس تشفير الرموز والفرق بين ASCII و Unicode، راجع الملاحظات البسيطة لتصل إلى الدرجة الكاملة في المرة القادمة.";
+            } else {
+                badgeElement.innerText = "🚀";
+                titleElement.innerText = "مستكشف رقمي في بداية الطريق!";
+                commentElement.innerText = "محاولة شجاعة وبداية جيدة! قراءة ملخص الدرس في البداية واستخدام جدول ASCII التفاعلي المرفق بتركيز أكبر سيساعدك بالتأكيد على تحطيم هذا الرقم، أعد التحدي لتثبت قوتك!";
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('score-screen').classList.add('hidden');
+            document.getElementById('intro-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+
+</html>
